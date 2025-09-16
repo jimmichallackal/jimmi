@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>St. Thomas Evangelical Church of India - Bangalore Parish</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      background: #34495e;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    section {
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    h2 {
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 0.5rem;
+    }
+    .card {
+      background: white;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    iframe {
+      width: 100%;
+      height: 250px;
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>St. Thomas Evangelical Church of India - Bangalore Parish</h1>
+    <p>“For the Word of God and Testimony of Jesus Christ”</p>
+  </header>
+
+  <nav>
+    <a href="#events">Events</a>
+    <a href="#sermons">Sermons</a>
+    <a href="#about">About</a>
+  </nav>
+
+  <section id="events">
+    <h2>Upcoming Events</h2>
+    <div id="events-list">Loading events...</div>
+  </section>
+
+  <section id="sermons">
+    <h2>Latest Sermons</h2>
+    <div id="sermons-list">Loading sermons...</div>
+  </section>
+
+  <section id="about">
+    <h2>About Our Parish</h2>
+    <p>
+      Welcome to the Bangalore Parish of St. Thomas Evangelical Church of India.
+      We are a Christ-centered community committed to worship, fellowship, and
+      serving God together.
+    </p>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script>
+    // 👉 Replace this with YOUR Google Sheet ID
+    const sheetID = "1ZZJKlCCiMLXoPrQmeYi8i3-BaX7BvOXZQl-QS0X2-hE";
+    const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv&sheet=`;
+
+    // Fetch Events
+    fetch(base + "Events")
+      .then(res => res.text())
+      .then(csv => {
+        const data = Papa.parse(csv, { header: true }).data;
+        let html = "";
+        data.forEach(row => {
+          if (row.Date && row.Event) {
+            html += `
+              <div class="card">
+                <strong>${row.Date}</strong> - <em>${row.Event}</em><br/>
+                Time: ${row.Time || "TBA"}<br/>
+                Location: ${row.Location || "Church"}
+              </div>`;
+          }
+        });
+        document.getElementById("events-list").innerHTML = html;
+      });
+
+    // Fetch Sermons
+    fetch(base + "Sermons")
+      .then(res => res.text())
+      .then(csv => {
+        const data = Papa.parse(csv, { header: true }).data;
+        let html = "";
+        data.forEach(row => {
+          if (row.Title && row["YouTube Link"]) {
+            html += `
+              <div class="card">
+                <h3>${row.Title}</h3>
+                <p><strong>Preacher:</strong> ${row.Preacher || "Guest"}</p>
+                <iframe src="${row["YouTube Link"].replace("watch?v=", "embed/")}" allowfullscreen></iframe>
+                ${row["Audio MP3 Link"] ? `<p><a href="${row["Audio MP3 Link"]}" target="_blank">🎧 Listen Audio</a></p>` : ""}
+              </div>`;
+          }
+        });
+        document.getElementById("sermons-list").innerHTML = html;
+      });
+  </script>
+</body>
+</html>
